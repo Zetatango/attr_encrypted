@@ -71,19 +71,6 @@ if defined?(ActiveRecord::Base)
             end
 
             define_method("#{attr}_with_dirtiness=") do |value|
-              ## Source: https://github.com/priyankatapar/attr_encrypted/commit/7e8702bd5418c927a39d8dd72c0adbea522d5663
-              # In ActiveRecord 5.2+, due to changes to the way virtual
-              # attributes are handled, @attributes[attr].value is nil which
-              # breaks attribute_was. Setting it here returns us to the expected
-              # behavior.
-              if Gem::Requirement.new('>= 5.2').satisfied_by?(RAILS_VERSION)
-                # This is needed support attribute_was before a record has
-                # been saved
-                set_attribute_was(attr, __send__(attr)) if value != __send__(attr)
-                # This is needed to support attribute_was after a record has
-                # been saved
-                @attributes.write_from_user(attr.to_s, value) if value != __send__(attr)
-              end
               attribute_will_change!(attr) if value != __send__(attr)
               __send__("#{attr}_without_dirtiness=", value)
             end
